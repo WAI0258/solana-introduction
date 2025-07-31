@@ -25,6 +25,16 @@
 
 ---
 
+## 关于套利
+
+经过发现，有直接 swap 2 次的 Tx 存在，但是因为高额 fee 和 priority fee 的支付，套利结果反而是亏本。大部分套利成功的 Tx 都是通过链上程序(用户自己编写 or Jupiter 等)进行(aggregator swap)，此时就需要根据 inner instruction 来分析。
+
+solana 的 prebalance 和 postbalance 会显示所有参与 Tx 的 accounts 的余额变化，包括删除的 accounts。而 postTokenBalances 和 preTokenBalances 只会显示还存在链上的 accounts。
+
+- 因此对于临时创建 accounts 来进行套利需要深入 swap 的原子指令 transfer 进行分析
+
+
+
 ## 1. 使用@solana/web3.js
 
 `getTransaction()` 获取 raw 格式(也可 parse json)，如果使用 `getParsedTransaction()` 会获得更直观的 json 数据
@@ -112,7 +122,7 @@
 
 #### innerInstructions
 
-Tx 指令的内层指令，一般分析行为都由此分析
+Tx 指令的内层指令，一般链上 program 驱动的行为都由此分析
 
 - **index**：该内层指令集的父指令在 `transaction.message.instructions` 或 `transaction.message.compiledInstructions` 的指标
 - **instructions**：详细内层指令
@@ -188,6 +198,12 @@ Tx 某个指令调用返回的数据
 
 - **programId**：产生该 data 的 program
 - **data**：[内容字符串, 加密方式]
+
+## 2. 使用对应交易所(dex, cex)的官方 api
+
+## 3. 第三方工具
+
+### sqd: https://docs.sqd.ai/
 
 ## Reference
 
